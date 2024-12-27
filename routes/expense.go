@@ -48,8 +48,10 @@ func GetExpense(w http.ResponseWriter, r *http.Request){
 
 func UpdateExpense(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("userID").(uint)
-	expenseID, _ := strconv.Atoi(chi.URLParam(r, "expenseID"))
-	
+	expenseID, _ := strconv.Atoi(r.URL.Query().Get("ID"))
 	var expense models.Expense
+	config.DB.Where("id = ? AND user_id = ?", expenseID, userID).First(&expense)
+
+	
 
 }
