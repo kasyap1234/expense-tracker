@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"strconv"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/kasyap1234/expense-tracker/config"
 	"github.com/kasyap1234/expense-tracker/models"
 )
@@ -44,3 +46,10 @@ func GetExpense(w http.ResponseWriter, r *http.Request){
 
 }
 
+func UpdateExpense(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("userID").(uint)
+	expenseID, _ := strconv.Atoi(chi.URLParam(r, "expenseID"))
+	
+	var expense models.Expense
+
+}
