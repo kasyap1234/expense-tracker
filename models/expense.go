@@ -1,6 +1,6 @@
 package models
 
-import "gorm.io/gorm"
+
 
 type Expense struct {
 	ID uint `gorm:"primaryKey"`

@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/lestrrat-go/jwx/jwt"
+	
 )
 
 var jwtSecret = []byte("your-secret-key")
@@ -44,7 +44,7 @@ var jwtSecret = []byte("your-secret-key")
 				return
 			}
 			// setting the userId in the user context ; 
-			
+
 			userID :=uint(claims["userID"].(float64))
 			ctx := context.WithValue(r.Context(), "userID", userID)
 			
