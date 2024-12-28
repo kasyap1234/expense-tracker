@@ -1,24 +1,24 @@
-package config 
+package config
 
 import (
+	"log"
+	"os"
+
+	"github.com/joho/godotenv"
 	"github.com/kasyap1234/expense-tracker/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"log"
-	"os"
 )
 
-var DB *gorm.DB 
+var DB *gorm.DB
 
-func InitDB(DB_URL string){
-	dsn :=os.Getenv(DB_URL); 
-	var err error 
-	DB,err = gorm.Open(postgres.Open(dsn),&gorm.Config{})
+func InitDB() {
+	godotenv.Load()
+	dsn := os.Getenv("DB_URL")
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal("Failed to connect to the database")
+		log.Fatal("Failed to connect to database:", err)
 	}
-	DB.AutoMigrate(&models.User{},&models.Expense{})
-	
-
+	DB = db
+	DB.AutoMigrate(&models.User{}, &models.Expense{})
 }
-

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -15,29 +14,17 @@ import (
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
-	DB_URL := os.Getenv("DB_URL")
-	if DB_URL == "" {
-		log.Fatal("DB_URL is not set")
-	}
-	fmt.Println("DB_URL:", DB_URL)
-	config.InitDB(DB_URL)
+	godotenv.Load()
+
+	config.InitDB()
 
 	r := chi.NewRouter()
-
 	r.Use(chiMid.Logger)
 	r.Use(chiMid.Recoverer)
+
 	r.Get("/auth/google/login", routes.GoogleLogin)
 	r.Get("/auth/google/callback", routes.OauthCallback)
 
-	// Protected routes
 	r.Route("/expenses", func(r chi.Router) {
 		r.Use(appMid.JWTMiddleware)
 		r.Post("/", routes.CreateExpense)
@@ -46,9 +33,16 @@ func main() {
 		r.Put("/{expenseID}", routes.UpdateExpense)
 		r.Delete("/{expenseID}", routes.DeleteExpense)
 	})
-	ssl := http.ListenAndServeTLS(":"+port, "cert.pem", "key.pem", r)
-	if ssl != nil {
-		log.Fatal(err)
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8000"
 	}
 
+	log.Printf("Server starting on port %s with HTTPS", port)
+	if err := http.ListenAndServe(":"+port, r); err != nil {
+		log.Fatal(err)
+	}
+	log.Default().Print("Server started on port ",port)
+	
 }

@@ -1,14 +1,12 @@
-FROM golang:1.23-alpine AS builder
-
+FROM golang:1.23-alpine
 WORKDIR /app
 
-COPY go.mod go.sum ./
-RUN go mod download
+# Copy .env file first
+COPY .env .env
 
+# Copy the rest of the application
 COPY . .
-
+RUN go mod download
 RUN CGO_ENABLED=0 GOOS=linux go build -o main .
-
-FROM alpine:latest
-COPY --from=builder /app/main /usr/local/bin/
-CMD ["main"]
+EXPOSE 8000
+CMD ["./main"]
