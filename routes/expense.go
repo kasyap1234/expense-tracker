@@ -51,7 +51,9 @@ func UpdateExpense(w http.ResponseWriter, r *http.Request) {
 	expenseID, _ := strconv.Atoi(r.URL.Query().Get("ID"))
 	var expense models.Expense
 	config.DB.Where("id = ? AND user_id = ?", expenseID, userID).First(&expense)
-
-	
-
+	json.NewDecoder(r.Body).Decode(&expense)
+	config.DB.Save(&expense)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(expense)
 }
+
