@@ -1,15 +1,17 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
+
 	"github.com/go-chi/chi"
 	chiMid "github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
 	"github.com/kasyap1234/expense-tracker/config"
-	"github.com/kasyap1234/expense-tracker/routes"
 	appMid "github.com/kasyap1234/expense-tracker/middleware"
+	"github.com/kasyap1234/expense-tracker/routes"
 )
 
 func main() {
@@ -21,7 +23,12 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	config.InitDB(os.Getenv("DB_URL"))
+	DB_URL := os.Getenv("DB_URL")
+	if DB_URL == "" {
+		log.Fatal("DB_URL is not set")
+	}
+	fmt.Println("DB_URL:", DB_URL)
+	config.InitDB(DB_URL)
 
 	r := chi.NewRouter()
 
@@ -32,15 +39,16 @@ func main() {
 
 	// Protected routes
 	r.Route("/expenses", func(r chi.Router) {
-	 r.Use(appMid.JWTMiddleware)
+		r.Use(appMid.JWTMiddleware)
 		r.Post("/", routes.CreateExpense)
 		r.Get("/", routes.GetExpenses)
 		r.Get("/{expenseID}", routes.GetExpense)
 		r.Put("/{expenseID}", routes.UpdateExpense)
 		r.Delete("/{expenseID}", routes.DeleteExpense)
 	})
+	ssl := http.ListenAndServeTLS(":"+port, "cert.pem", "key.pem", r)
+	if ssl != nil {
+		log.Fatal(err)
+	}
 
-	http.ListenAndServe(":8080", r)
-
-	http.ListenAndServe(":"+port, r)
 }
