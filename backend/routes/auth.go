@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 	"time"
-
+	"log"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/joho/godotenv"
 	"github.com/kasyap1234/expense-tracker/config"
@@ -13,9 +13,13 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
+func init(){
+	godotenv.Load()
+
+}
 
 func InitializeOAuth() *oauth2.Config {
-	godotenv.Load()
+	
 	
 	return &oauth2.Config{
 		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
@@ -27,20 +31,25 @@ func InitializeOAuth() *oauth2.Config {
 }
 
 func GoogleLogin(w http.ResponseWriter, r *http.Request) {
-	oauthConfig := InitializeOAuth()
-	url := oauthConfig.AuthCodeURL("state")
-	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+    oauthConfig := InitializeOAuth()
+    url := oauthConfig.AuthCodeURL("state")
+    log.Printf("Redirecting to Google: %s", url)
+    http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
+
 
 func OauthCallback(w http.ResponseWriter, r *http.Request) {
 	oauthConfig := InitializeOAuth()
+	// code in the url from oauthcallback 
+
 	code := r.URL.Query().Get("code")
+	// exchange code for token ; 
 	token, err := oauthConfig.Exchange(r.Context(), code)
 	if err != nil {
 		http.Error(w, "Failed to exchange token", http.StatusInternalServerError)
 		return
 	}
-
+	
 	client := oauthConfig.Client(r.Context(), token)
 	resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
 	if err != nil {
@@ -66,6 +75,7 @@ func OauthCallback(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
 		return
 	}
+	
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "token",
@@ -73,7 +83,15 @@ func OauthCallback(w http.ResponseWriter, r *http.Request) {
 		Expires:  time.Now().Add(24 * time.Hour),
 		HttpOnly: true,
 	})
-	w.Write([]byte("Login successful"))
+	frontendURL := "http://localhost:3000/dashboard?token=" + tokenString
+    http.Redirect(w, r, frontendURL, http.StatusTemporaryRedirect)
+	response :=map[string]string{
+		"message": "Login Successful",
+		"token": tokenString,
+	}
+	w.Header().Set("Content-Type","application/json")
+	json.NewEncoder(w).Encode(response); 
+	
 }
 
 func generateToken(userID uint) (string, error) {

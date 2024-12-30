@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-chi/chi"
 	chiMid "github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
 	"github.com/kasyap1234/expense-tracker/config"
 	appMid "github.com/kasyap1234/expense-tracker/middleware"
@@ -21,6 +22,13 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(chiMid.Logger)
 	r.Use(chiMid.Recoverer)
+// main.go
+r.Use(cors.Handler(cors.Options{
+    AllowedOrigins:   []string{"http://localhost:3000"},
+    AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+    AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
+    AllowCredentials: true,
+}))
 
 	r.Get("/auth/google/login", routes.GoogleLogin)
 	r.Get("/auth/google/callback", routes.OauthCallback)
