@@ -33,6 +33,7 @@ r.Use(cors.Handler(cors.Options{
 
 	r.Get("/auth/google/login", routes.GoogleLogin)
 	r.Get("/auth/google/callback", routes.OauthCallback)
+r.Get("/auth/logout",routes.LogOut)
 
 	r.Route("/expenses", func(r chi.Router) {
 		r.Use(appMid.JWTMiddleware)

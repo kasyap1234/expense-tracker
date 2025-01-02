@@ -105,3 +105,19 @@ func generateToken(userID uint) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 }
+
+
+
+func LogOut(w http.ResponseWriter,r *http.Request){
+	http.SetCookie(w,&http.Cookie{
+		Name: "token",
+		Value: "",
+		Path : "/",
+		MaxAge: -1,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+
+	})
+http.Redirect(w,r,"index",http.StatusSeeOther)
+
+}
