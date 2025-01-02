@@ -82,7 +82,10 @@ func OauthCallback(w http.ResponseWriter, r *http.Request) {
 		Value:    tokenString,
 		Expires:  time.Now().Add(24 * time.Hour),
 		HttpOnly: true,
+		Path:     "/",
+		SameSite: http.SameSiteLaxMode,
 	})
+	
 	frontendURL := "http://localhost:3000/dashboard?token=" + tokenString
     http.Redirect(w, r, frontendURL, http.StatusTemporaryRedirect)
 	response :=map[string]string{
