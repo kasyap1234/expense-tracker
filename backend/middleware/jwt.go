@@ -13,7 +13,7 @@ import (
 func init() {
 	godotenv.Load()
 }
-
+// verification of jwt token and will identify user id from the jwt token 
 func JWTMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("token")
