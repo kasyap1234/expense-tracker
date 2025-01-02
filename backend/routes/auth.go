@@ -69,7 +69,7 @@ func OauthCallback(w http.ResponseWriter, r *http.Request) {
 		Email:    userInfo.Email,
 		Username: userInfo.Name,
 	})
-
+// generating jwt token for this user id 
 	tokenString, err := generateToken(user.ID)
 	if err != nil {
 		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
