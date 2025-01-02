@@ -1,7 +1,5 @@
 package models
 
-
-
 type Expense struct {
 	ID uint `gorm:"primaryKey"`
 	Title string `gorm:"not null"`
